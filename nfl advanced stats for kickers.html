@@ -1,0 +1,236 @@
+<!DOCTYPE html>\n<html lang="en"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSV Insight Table</title>
+    
+    <style>
+        /* Tooltip Styling */
+        .tooltip-container {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            cursor: help;
+        }
+
+        .tooltip-text {
+            visibility: hidden;
+            min-width: 200px;
+            max-width: 400px; 
+            background-color: #111827;
+            color: #ffffff;
+            text-align: left;
+            border-radius: 8px;
+            padding: 14px;
+            position: absolute;
+            z-index: 99999; 
+            top: 150%; 
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.2s;
+            font-size: 0.85rem;
+            font-weight: 400;
+            pointer-events: none;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.7);
+            line-height: 1.6;
+            border: 1px solid rgba(255,255,255,0.2);
+            white-space: normal !important; 
+            word-wrap: break-word;
+            overflow: visible;
+        }
+
+        .tooltip-text::after {
+            content: "";
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            margin-left: -8px;
+            border-width: 8px;
+            border-style: solid;
+            border-color: transparent transparent #111827 transparent;
+        }
+
+        .tooltip-container:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        body, html {
+            overflow-x: hidden;
+            height: 100%;
+        }
+
+        #table-wrapper {
+            overflow: visible !important; 
+            background: white;
+            position: relative;
+        }
+
+        .table-scroll-container {
+            overflow-x: auto;
+            overflow-y: visible !important; 
+            position: relative;
+            display: block;
+            padding-bottom: 250px; 
+            margin-bottom: -250px; 
+        }
+
+        th {
+            position: sticky;
+            top: 0;
+            z-index: 50; 
+            background: #f8fafc;
+        }
+
+        table {
+            border-collapse: separate;
+            border-spacing: 0;
+            width: 100%;
+        }
+
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #888; border-radius: 4px; }
+    </style>
+<style>*, ::before, ::after{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/* ! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com */*,::after,::before{box-sizing:border-box;border-width:0;border-style:solid;border-color:#e5e7eb}::after,::before{--tw-content:''}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;tab-size:4;font-family:ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0;padding:0}legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}.mx-auto{margin-left:auto;margin-right:auto}.mb-10{margin-bottom:2.5rem}.mb-2{margin-bottom:0.5rem}.mb-4{margin-bottom:1rem}.mb-6{margin-bottom:1.5rem}.mb-8{margin-bottom:2rem}.mt-2{margin-top:0.5rem}.mt-64{margin-top:16rem}.block{display:block}.flex{display:flex}.inline-flex{display:inline-flex}.hidden{display:none}.h-12{height:3rem}.min-h-screen{min-height:100vh}.w-12{width:3rem}.w-full{width:100%}.max-w-6xl{max-width:72rem}.cursor-pointer{cursor:pointer}.select-none{-webkit-user-select:none;user-select:none}.flex-col{flex-direction:column}.items-center{align-items:center}.justify-between{justify-content:space-between}.gap-1{gap:0.25rem}.gap-2{gap:0.5rem}.gap-4{gap:1rem}.divide-y > :not([hidden]) ~ :not([hidden]){--tw-divide-y-reverse:0;border-top-width:calc(1px * calc(1 - var(--tw-divide-y-reverse)));border-bottom-width:calc(1px * var(--tw-divide-y-reverse))}.divide-slate-100 > :not([hidden]) ~ :not([hidden]){--tw-divide-opacity:1;border-color:rgb(241 245 249 / var(--tw-divide-opacity, 1))}.whitespace-nowrap{white-space:nowrap}.rounded{border-radius:0.25rem}.rounded-lg{border-radius:0.5rem}.rounded-xl{border-radius:0.75rem}.border{border-width:1px}.border-2{border-width:2px}.border-b{border-bottom-width:1px}.border-dashed{border-style:dashed}.border-slate-200{--tw-border-opacity:1;border-color:rgb(226 232 240 / var(--tw-border-opacity, 1))}.border-slate-300{--tw-border-opacity:1;border-color:rgb(203 213 225 / var(--tw-border-opacity, 1))}.bg-blue-600{--tw-bg-opacity:1;background-color:rgb(37 99 235 / var(--tw-bg-opacity, 1))}.bg-emerald-600{--tw-bg-opacity:1;background-color:rgb(5 150 105 / var(--tw-bg-opacity, 1))}.bg-slate-100{--tw-bg-opacity:1;background-color:rgb(241 245 249 / var(--tw-bg-opacity, 1))}.bg-slate-50{--tw-bg-opacity:1;background-color:rgb(248 250 252 / var(--tw-bg-opacity, 1))}.bg-slate-800{--tw-bg-opacity:1;background-color:rgb(30 41 59 / var(--tw-bg-opacity, 1))}.bg-white{--tw-bg-opacity:1;background-color:rgb(255 255 255 / var(--tw-bg-opacity, 1))}.p-10{padding:2.5rem}.p-4{padding:1rem}.p-6{padding:1.5rem}.px-3{padding-left:0.75rem;padding-right:0.75rem}.px-4{padding-left:1rem;padding-right:1rem}.px-6{padding-left:1.5rem;padding-right:1.5rem}.py-1\.5{padding-top:0.375rem;padding-bottom:0.375rem}.py-2{padding-top:0.5rem;padding-bottom:0.5rem}.py-20{padding-top:5rem;padding-bottom:5rem}.py-4{padding-top:1rem;padding-bottom:1rem}.py-5{padding-top:1.25rem;padding-bottom:1.25rem}.text-left{text-align:left}.text-center{text-align:center}.font-sans{font-family:ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"}.text-3xl{font-size:1.875rem;line-height:2.25rem}.text-4xl{font-size:2.25rem;line-height:2.5rem}.text-sm{font-size:0.875rem;line-height:1.25rem}.text-xs{font-size:0.75rem;line-height:1rem}.font-bold{font-weight:700}.font-extrabold{font-weight:800}.font-medium{font-weight:500}.text-red-500{--tw-text-opacity:1;color:rgb(239 68 68 / var(--tw-text-opacity, 1))}.text-slate-400{--tw-text-opacity:1;color:rgb(148 163 184 / var(--tw-text-opacity, 1))}.text-slate-500{--tw-text-opacity:1;color:rgb(100 116 139 / var(--tw-text-opacity, 1))}.text-slate-600{--tw-text-opacity:1;color:rgb(71 85 105 / var(--tw-text-opacity, 1))}.text-slate-700{--tw-text-opacity:1;color:rgb(51 65 85 / var(--tw-text-opacity, 1))}.text-slate-800{--tw-text-opacity:1;color:rgb(30 41 59 / var(--tw-text-opacity, 1))}.text-slate-900{--tw-text-opacity:1;color:rgb(15 23 42 / var(--tw-text-opacity, 1))}.text-white{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity, 1))}.opacity-40{opacity:0.4}.shadow-md{--tw-shadow:0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 4px 6px -1px var(--tw-shadow-color), 0 2px 4px -2px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-sm{--tw-shadow:0 1px 2px 0 rgb(0 0 0 / 0.05);--tw-shadow-colored:0 1px 2px 0 var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.outline-none{outline:2px solid transparent;outline-offset:2px}.transition-all{transition-property:all;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.transition-colors{transition-property:color, background-color, border-color, fill, stroke, -webkit-text-decoration-color;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke, -webkit-text-decoration-color;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.hover\:border-blue-400:hover{--tw-border-opacity:1;border-color:rgb(96 165 250 / var(--tw-border-opacity, 1))}.hover\:bg-blue-700:hover{--tw-bg-opacity:1;background-color:rgb(29 78 216 / var(--tw-bg-opacity, 1))}.hover\:bg-emerald-700:hover{--tw-bg-opacity:1;background-color:rgb(4 120 87 / var(--tw-bg-opacity, 1))}.hover\:bg-slate-900:hover{--tw-bg-opacity:1;background-color:rgb(15 23 42 / var(--tw-bg-opacity, 1))}.hover\:bg-slate-200:hover{--tw-bg-opacity:1;background-color:rgb(226 232 240 / var(--tw-bg-opacity, 1))}.hover\:bg-slate-50:hover{--tw-bg-opacity:1;background-color:rgb(248 250 252 / var(--tw-bg-opacity, 1))}.hover\:underline:hover{-webkit-text-decoration-line:underline;text-decoration-line:underline}.focus\:border-blue-500:focus{--tw-border-opacity:1;border-color:rgb(59 130 246 / var(--tw-border-opacity, 1))}.focus\:ring-2:focus{--tw-ring-offset-shadow:var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);--tw-ring-shadow:var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);box-shadow:var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000)}.focus\:ring-blue-500:focus{--tw-ring-opacity:1;--tw-ring-color:rgb(59 130 246 / var(--tw-ring-opacity, 1))}@media (min-width: 768px){.md\:p-8{padding:2rem}}</style></head>
+<body class="bg-slate-50 min-h-screen font-sans text-slate-900">
+
+    <div class="max-w-6xl mx-auto p-4 md:p-8">
+        
+
+        
+
+        
+
+        
+
+        <h2 id="export-title-display" class="text-3xl font-bold text-slate-800 mb-6 text-center">NFL advanced Stats for Kickers</h2>
+
+        <div id="table-wrapper" class="bg-white rounded-xl shadow-md border border-slate-200">
+            <div class="table-scroll-container">
+                <table class="text-left" id="data-table">
+                    <thead>
+                        <tr id="table-header" class="bg-slate-100 border-b border-slate-200"></tr>
+                    </thead>
+                    <tbody id="table-body" class="divide-y divide-slate-100"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="export-csv-download-container" class="mt-64 text-center">
+            <button id="download-csv-btn" class="bg-slate-800 hover:bg-slate-900 text-white px-6 py-2 rounded-lg font-medium transition-colors inline-flex items-center gap-2">
+                Download Original CSV
+            </button>
+        </div>
+
+        
+    </div>
+
+    
+
+</body></html>
+<script>
+    // Ensure all data is captured for the export
+    const tableData = [{"name":"W.Reichard","FGs made (number of field goals and extra points made)":"60","xFG made (number of field goals and extra points that is expected to made made based on distances of the kickers attempts)":"54.80","Pa/FG (points added for every expected field goal)":"3.28","Paae (points added above expected)":"15.60","WAR (wins added above replacement where replacement is 33rd best kicker)":"0.75","FGae (field goals made for every expected field goal)":"5.20","FGA/FG (field goals made above expected)":"1.09"},{"name":"B.Aubrey","FGs made (number of field goals and extra points made)":"80","xFG made (number of field goals and extra points that is expected to made made based on distances of the kickers attempts)":"75.94","Pa/FG (points added for every expected field goal)":"3.16","Paae (points added above expected)":"12.18","WAR (wins added above replacement where replacement is 33rd best kicker)":"0.63","FGae (field goals made for every expected field goal)":"4.06","FGA/FG (field goals made above expected)":"1.05"},{"name":"N.Folk","FGs made (number of field goals and extra points made)":"50","xFG made (number of field goals and extra points that is expected to made made based on distances of the kickers attempts)":"46.19","Pa/FG (points added for every expected field goal)":"3.25","Paae (points added above expected)":"11.44","WAR (wins added above replacement where replacement is 33rd best kicker)":"0.60","FGae (field goals made for every expected field goal)":"3.81","FGA/FG (field goals made above expected)":"1.08"},{"name":"J.Myers","FGs made (number of field goals and extra points made)":"86","xFG made (number of field goals and extra points that is expected to made made based on distances of the kickers attempts)":"82.20","Pa/FG (points added for every expected field goal)":"3.14","Paae (points added above expected)":"11.39","WAR (wins added above replacement where replacement is 33rd best kicker)":"0.60","FGae (field goals made for every expected field goal)":"3.80","FGA/FG (field goals made above expected)":"1.05"},{"name":"K.Fairbairn","FGs made (number of field goals and extra points made)":"64","xFG made (number of field goals and extra points that is expected to made made based on distances of the kickers attempts)":"61.19","Pa/FG (points added for every expected field goal)":"3.14","Paae (points added above expected)":"8.43","WAR (wins added above replacement where replacement is 33rd best kicker)":"0.50","FGae (field goals made for every expected field goal)":"2.81","FGA/FG (field goals made above expected)":"1.05"},{"name":"E.McPherson","FGs made (number of field goals and extra points made)":"66","xFG made (number of field goals and extra points that is expected to made made based on distances of the kickers attempts)":"63.42","Pa/FG (points added for every expected field goal)":"3.12","Paae (points added above expected)":"7.75","WAR (wins added above replacement where replacement is 33rd best kicker)":"0.47","FGae (field goals made for every expected field goal)":"2.58","FGA/FG (field goals made above expected)":"1.04"},{"name":"C.Boswell","FGs made (number of field goals and extra points made)":"65","xFG made (number of field goals and extra points that is expected to made made based on distances of the kickers attempts)":"62.69","Pa/FG (points added for every expected field goal)":"3.11","Paae (points added above expected)":"6.92","WAR (wins added above replacement where replacement is 33rd best kicker)":"0.44","FGae (field goals made for every expected field goal)":"2.31","FGA/FG (field goals made above expected)":"1.04"},{"name":"C.Dicker","FGs made (number of field goals and extra points made)":"71","xFG made (number of field goals and extra points that is expected to made made based on distances of the kickers attempts)":"68.92","Pa/FG (points added for every expected field goal)":"3.09","Paae (points added above expected)":"6.23","WAR (wins added above replacement where replacement is 33rd best kicker)":"0.42","FGae (field goals made for every expected field goal)":"2.08","FGA/FG (field goals made above expected)":"1.03"},{"name":"C.McLaughlin","FGs made (number of field goals and extra points made)":"60","xFG made (number of field goals and extra points that is expected to made made based on distances of the kickers attempts)":"58.46","Pa/FG (points added for every expected field goal)":"3.08","Paae (points added above expected)":"4.61","WAR (wins added above replacement where replacement is 33rd best kicker)":"0.36","FGae (field goals made for every expected field goal)":"1.54","FGA/FG (field goals made above expected)":"1.03"},{"name":"R.Patterson","FGs made (number of field goals and extra points made)":"59","xFG made (number of field goals and extra points that is expected to made made based on distances of the kickers attempts)":"57.67","Pa/FG (points added for every expected field goal)":"3.07","Paae (points added above expected)":"4.00","WAR (wins added above replacement where replacement is 33rd best kicker)":"0.34","FGae (field goals made for every expected field goal)":"1.33","FGA/FG (field goals made above expected)":"1.02"},{"name":"C.Little","FGs made (number of field goals and extra points made)":"73","xFG made (number of field goals and extra points that is expected to made made based on distances of the kickers attempts)":"71.68","Pa/FG (points added for every expected field goal)":"3.06","Paae (points added above expected)":"3.97","WAR (wins added above replacement where replacement is 33rd best kicker)":"0.34","FGae (field goals made for every expected field goal)":"1.32","FGA/FG (field goals made above expected)":"1.02"},{"name":"H.Mevis","FGs made (number of field goals and extra points made)":"44","xFG made (number of field goals and extra points that is expected to made made based on distances of the kickers attempts)":"43.01","Pa/FG (points added for every expected field goal)":"3.07","Paae (points added above expected)":"2.98","WAR (wins added above replacement where replacement is 33rd best kicker)":"0.31","FGae (field goals made for every expected field goal)":"0.99","FGA/FG (field goals made above expected)":"1.02"},{"name":"J.Slye","FGs made (number of field goals and extra points made)":"53","xFG made (number of field goals and extra points that is expected to made made based on distances of the kickers attempts)":"52.15","Pa/FG (points added for every expected field goal)":"3.05","Paae (points added above expected)":"2.54","WAR (wins added above replacement where replacement is 33rd best kicker)":"0.29","FGae (field goals made for every expected field goal)":"0.85","FGA/FG (field goals made above expected)":"1.02"},{"name":"E.Pineiro","FGs made (number of field goals and extra points made)":"61","xFG made (number of field goals and extra points that is expected to made made based on distances of the kickers attempts)":"60.25","Pa/FG (points added for every expected field goal)":"3.04","Paae (points added above expected)":"2.25","WAR (wins added above replacement where replacement is 33rd best kicker)":"0.28","FGae (field goals made for every expected field goal)":"0.75","FGA/FG (field goals made above expected)":"1.01"},{"name":"S.Shrader","FGs made (number of field goals and extra points made)":"27","xFG made (number of field goals and extra points that is expected to made made based on distances of the kickers attempts)":"26.35","Pa/FG (points added for every expected field goal)":"3.07","Paae (points added above expected)":"1.95","WAR (wins added above replacement where replacement is 33rd best kicker)":"0.27","FGae (field goals made for every expected field goal)":"0.65","FGA/FG (field goals made above expected)":"1.02"},{"name":"W.Lutz","FGs made (number of field goals and extra points made)":"62","xFG made (number of field goals and extra points that is expected to made made based on distances of the kickers attempts)":"61.44","Pa/FG (points added for every expected field goal)":"3.03","Paae (points added above expected)":"1.67","WAR (wins added above replacement where replacement is 33rd best kicker)":"0.26","FGae (field goals made for every expected field goal)":"0.56","FGA/FG (field goals made above expected)":"1.01"},{"name":"C.Smyth","FGs made (number of field goals and extra points made)":"22","xFG made (number of field goals and extra points that is expected to made made based on distances of the kickers attempts)":"21.45","Pa/FG (points added for every expected field goal)":"3.08","Paae (points added above expected)":"1.65","WAR (wins added above replacement where replacement is 33rd best kicker)":"0.26","FGae (field goals made for every expected field goal)":"0.55","FGA/FG (field goals made above expected)":"1.03"},{"name":"M.Wright","FGs made (number of field goals and extra points made)":"9","xFG made (number of field goals and extra points that is expected to made made based on distances of the kickers attempts)":"8.47","Pa/FG (points added for every expected field goal)":"3.19","Paae (points added above expected)":"1.59","WAR (wins added above replacement where replacement is 33rd best kicker)":"0.26","FGae (field goals made for every expected field goal)":"0.53","FGA/FG (field goals made above expected)":"1.06"},{"name":"C.Santos","FGs made (number of field goals and extra points made)":"64","xFG made (number of field goals and extra points that is expected to made made based on distances of the kickers attempts)":"63.72","Pa/FG (points added for every expected field goal)":"3.01","Paae (points added above expected)":"0.83","WAR (wins added above replacement where replacement is 33rd best kicker)":"0.23","FGae (field goals made for every expected field goal)":"0.28","FGA/FG (field goals made above expected)":"1.00"},{"name":"B.Sauls","FGs made (number of field goals and extra points made)":"9","xFG made (number of field goals and extra points that is expected to made made based on distances of the kickers attempts)":"8.73","Pa/FG (points added for every expected field goal)":"3.09","Paae (points added above expected)":"0.80","WAR (wins added above replacement where replacement is 33rd best kicker)":"0.23","FGae (field goals made for every expected field goal)":"0.27","FGA/FG (field goals made above expected)":"1.03"},{"name":"G.Gano","FGs made (number of field goals and extra points made)":"18","xFG made (number of field goals and extra points that is expected to made made based on distances of the kickers attempts)":"17.82","Pa/FG (points added for every expected field goal)":"3.03","Paae (points added above expected)":"0.55","WAR (wins added above replacement where replacement is 33rd best kicker)":"0.22","FGae (field goals made for every expected field goal)":"0.18","FGA/FG (field goals made above expected)":"1.01"},{"name":"Z.Gonzalez","FGs made (number of field goals and extra points made)":"31","xFG made (number of field goals and extra points that is expected to made made based on distances of the kickers attempts)":"30.85","Pa/FG (points added for every expected field goal)":"3.01","Paae (points added above expected)":"0.45","WAR (wins added above replacement where replacement is 33rd best kicker)":"0.22","FGae (field goals made for every expected field goal)":"0.15","FGA/FG (field goals made above expected)":"1.00"},{"name":"A.Szmyt","FGs made (number of field goals and extra points made)":"45","xFG made (number of field goals and extra points that is expected to made made based on distances of the kickers attempts)":"45.11","Pa/FG (points added for every expected field goal)":"2.99","Paae (points added above expected)":"-0.33","WAR (wins added above replacement where replacement is 33rd best kicker)":"0.19","FGae (field goals made for every expected field goal)":"-0.11","FGA/FG (field goals made above expected)":"1.00"},{"name":"J.Bates","FGs made (number of field goals and extra points made)":"76","xFG made (number of field goals and extra points that is expected to made made based on distances of the kickers attempts)":"76.58","Pa/FG (points added for every expected field goal)":"2.98","Paae (points added above expected)":"-1.75","WAR (wins added above replacement where replacement is 33rd best kicker)":"0.14","FGae (field goals made for every expected field goal)":"-0.58","FGA/FG (field goals made above expected)":"0.99"},{"name":"T.Loop","FGs made (number of field goals and extra points made)":"70","xFG made (number of field goals and extra points that is expected to made made based on distances of the kickers attempts)":"70.70","Pa/FG (points added for every expected field goal)":"2.97","Paae (points added above expected)":"-2.11","WAR (wins added above replacement where replacement is 33rd best kicker)":"0.13","FGae (field goals made for every expected field goal)":"-0.70","FGA/FG (field goals made above expected)":"0.99"},{"name":"L.Havrisik","FGs made (number of field goals and extra points made)":"11","xFG made (number of field goals and extra points that is expected to made made based on distances of the kickers attempts)":"11.91","Pa/FG (points added for every expected field goal)":"2.77","Paae (points added above expected)":"-2.73","WAR (wins added above replacement where replacement is 33rd best kicker)":"0.11","FGae (field goals made for every expected field goal)":"-0.91","FGA/FG (field goals made above expected)":"0.92"},{"name":"J.Gillan","FGs made (number of field goals and extra points made)":"0","xFG made (number of field goals and extra points that is expected to made made based on distances of the kickers attempts)":"0.97","Pa/FG (points added for every expected field goal)":"0.00","Paae (points added above expected)":"-2.91","WAR (wins added above replacement where replacement is 33rd best kicker)":"0.10","FGae (field goals made for every expected field goal)":"-0.97","FGA/FG (field goals made above expected)":"0.00"},{"name":"M.Gay","FGs made (number of field goals and extra points made)":"43","xFG made (number of field goals and extra points that is expected to made made based on distances of the kickers attempts)":"44.08","Pa/FG (points added for every expected field goal)":"2.93","Paae (points added above expected)":"-3.25","WAR (wins added above replacement where replacement is 33rd best kicker)":"0.09","FGae (field goals made for every expected field goal)":"-1.08","FGA/FG (field goals made above expected)":"0.98"},{"name":"D.Carlson","FGs made (number of field goals and extra points made)":"39","xFG made (number of field goals and extra points that is expected to made made based on distances of the kickers attempts)":"40.71","Pa/FG (points added for every expected field goal)":"2.87","Paae (points added above expected)":"-5.13","WAR (wins added above replacement where replacement is 33rd best kicker)":"0.02","FGae (field goals made for every expected field goal)":"-1.71","FGA/FG (field goals made above expected)":"0.96"},{"name":"M.Prater","FGs made (number of field goals and extra points made)":"61","xFG made (number of field goals and extra points that is expected to made made based on distances of the kickers attempts)":"62.72","Pa/FG (points added for every expected field goal)":"2.92","Paae (points added above expected)":"-5.17","WAR (wins added above replacement where replacement is 33rd best kicker)":"0.02","FGae (field goals made for every expected field goal)":"-1.72","FGA/FG (field goals made above expected)":"0.97"},{"name":"A.Borregales","FGs made (number of field goals and extra points made)":"74","xFG made (number of field goals and extra points that is expected to made made based on distances of the kickers attempts)":"75.92","Pa/FG (points added for every expected field goal)":"2.92","Paae (points added above expected)":"-5.76","WAR (wins added above replacement where replacement is 33rd best kicker)":"0.00","FGae (field goals made for every expected field goal)":"-1.92","FGA/FG (field goals made above expected)":"0.97"},{"name":"C.Ryland","FGs made (number of field goals and extra points made)":"57","xFG made (number of field goals and extra points that is expected to made made based on distances of the kickers attempts)":"58.93","Pa/FG (points added for every expected field goal)":"2.90","Paae (points added above expected)":"-5.78","WAR (wins added above replacement where replacement is 33rd best kicker)":"0.00","FGae (field goals made for every expected field goal)":"-1.93","FGA/FG (field goals made above expected)":"0.97"},{"name":"J.Moody","FGs made (number of field goals and extra points made)":"30","xFG made (number of field goals and extra points that is expected to made made based on distances of the kickers attempts)":"31.94","Pa/FG (points added for every expected field goal)":"2.82","Paae (points added above expected)":"-5.82","WAR (wins added above replacement where replacement is 33rd best kicker)":"0.00","FGae (field goals made for every expected field goal)":"-1.94","FGA/FG (field goals made above expected)":"0.94"},{"name":"J.Elliott","FGs made (number of field goals and extra points made)":"58","xFG made (number of field goals and extra points that is expected to made made based on distances of the kickers attempts)":"59.95","Pa/FG (points added for every expected field goal)":"2.90","Paae (points added above expected)":"-5.85","WAR (wins added above replacement where replacement is 33rd best kicker)":"0.00","FGae (field goals made for every expected field goal)":"-1.95","FGA/FG (field goals made above expected)":"0.97"},{"name":"J.Romo","FGs made (number of field goals and extra points made)":"23","xFG made (number of field goals and extra points that is expected to made made based on distances of the kickers attempts)":"25.05","Pa/FG (points added for every expected field goal)":"2.75","Paae (points added above expected)":"-6.14","WAR (wins added above replacement where replacement is 33rd best kicker)":"-0.01","FGae (field goals made for every expected field goal)":"-2.05","FGA/FG (field goals made above expected)":"0.92"},{"name":"B.McManus","FGs made (number of field goals and extra points made)":"55","xFG made (number of field goals and extra points that is expected to made made based on distances of the kickers attempts)":"57.26","Pa/FG (points added for every expected field goal)":"2.88","Paae (points added above expected)":"-6.78","WAR (wins added above replacement where replacement is 33rd best kicker)":"-0.03","FGae (field goals made for every expected field goal)":"-2.26","FGA/FG (field goals made above expected)":"0.96"},{"name":"B.Grupe","FGs made (number of field goals and extra points made)":"48","xFG made (number of field goals and extra points that is expected to made made based on distances of the kickers attempts)":"50.49","Pa/FG (points added for every expected field goal)":"2.85","Paae (points added above expected)":"-7.48","WAR (wins added above replacement where replacement is 33rd best kicker)":"-0.06","FGae (field goals made for every expected field goal)":"-2.49","FGA/FG (field goals made above expected)":"0.95"},{"name":"R.Fitzgerald","FGs made (number of field goals and extra points made)":"49","xFG made (number of field goals and extra points that is expected to made made based on distances of the kickers attempts)":"51.50","Pa/FG (points added for every expected field goal)":"2.85","Paae (points added above expected)":"-7.49","WAR (wins added above replacement where replacement is 33rd best kicker)":"-0.06","FGae (field goals made for every expected field goal)":"-2.50","FGA/FG (field goals made above expected)":"0.95"},{"name":"Y.Koo","FGs made (number of field goals and extra points made)":"19","xFG made (number of field goals and extra points that is expected to made made based on distances of the kickers attempts)":"21.56","Pa/FG (points added for every expected field goal)":"2.64","Paae (points added above expected)":"-7.68","WAR (wins added above replacement where replacement is 33rd best kicker)":"-0.07","FGae (field goals made for every expected field goal)":"-2.56","FGA/FG (field goals made above expected)":"0.88"},{"name":"J.McAtamney","FGs made (number of field goals and extra points made)":"11","xFG made (number of field goals and extra points that is expected to made made based on distances of the kickers attempts)":"13.61","Pa/FG (points added for every expected field goal)":"2.43","Paae (points added above expected)":"-7.82","WAR (wins added above replacement where replacement is 33rd best kicker)":"-0.07","FGae (field goals made for every expected field goal)":"-2.61","FGA/FG (field goals made above expected)":"0.81"},{"name":"H.Butker","FGs made (number of field goals and extra points made)":"60","xFG made (number of field goals and extra points that is expected to made made based on distances of the kickers attempts)":"63.01","Pa/FG (points added for every expected field goal)":"2.86","Paae (points added above expected)":"-9.04","WAR (wins added above replacement where replacement is 33rd best kicker)":"-0.11","FGae (field goals made for every expected field goal)":"-3.01","FGA/FG (field goals made above expected)":"0.95"},{"name":"M.Badgley","FGs made (number of field goals and extra points made)":"31","xFG made (number of field goals and extra points that is expected to made made based on distances of the kickers attempts)":"34.57","Pa/FG (points added for every expected field goal)":"2.69","Paae (points added above expected)":"-10.70","WAR (wins added above replacement where replacement is 33rd best kicker)":"-0.17","FGae (field goals made for every expected field goal)":"-3.57","FGA/FG (field goals made above expected)":"0.90"},{"name":"J.Karty","FGs made (number of field goals and extra points made)":"33","xFG made (number of field goals and extra points that is expected to made made based on distances of the kickers attempts)":"38.72","Pa/FG (points added for every expected field goal)":"2.56","Paae (points added above expected)":"-17.16","WAR (wins added above replacement where replacement is 33rd best kicker)":"-0.39","FGae (field goals made for every expected field goal)":"-5.72","FGA/FG (field goals made above expected)":"0.85"}];
+    const headers = ["name","FGs made (number of field goals and extra points made)","xFG made (number of field goals and extra points that is expected to made made based on distances of the kickers attempts)","Pa/FG (points added for every expected field goal)","Paae (points added above expected)","WAR (wins added above replacement where replacement is 33rd best kicker)","FGae (field goals made for every expected field goal)","FGA/FG (field goals made above expected)"];
+    const originalCsvContent = "name,FGs made (number of field goals and extra points made),xFG made (number of field goals and extra points that is expected to made made based on distances of the kickers attempts),Pa/FG (points added for every expected field goal),Paae (points added above expected),WAR (wins added above replacement where replacement is 33rd best kicker),FGae (field goals made for every expected field goal),FGA/FG (field goals made above expected)\r\nW.Reichard,60,54.80,3.28,15.60,0.75,5.20,1.09\r\nB.Aubrey,80,75.94,3.16,12.18,0.63,4.06,1.05\r\nN.Folk,50,46.19,3.25,11.44,0.60,3.81,1.08\r\nJ.Myers,86,82.20,3.14,11.39,0.60,3.80,1.05\r\nK.Fairbairn,64,61.19,3.14,8.43,0.50,2.81,1.05\r\nE.McPherson,66,63.42,3.12,7.75,0.47,2.58,1.04\r\nC.Boswell,65,62.69,3.11,6.92,0.44,2.31,1.04\r\nC.Dicker,71,68.92,3.09,6.23,0.42,2.08,1.03\r\nC.McLaughlin,60,58.46,3.08,4.61,0.36,1.54,1.03\r\nR.Patterson,59,57.67,3.07,4.00,0.34,1.33,1.02\r\nC.Little,73,71.68,3.06,3.97,0.34,1.32,1.02\r\nH.Mevis,44,43.01,3.07,2.98,0.31,0.99,1.02\r\nJ.Slye,53,52.15,3.05,2.54,0.29,0.85,1.02\r\nE.Pineiro,61,60.25,3.04,2.25,0.28,0.75,1.01\r\nS.Shrader,27,26.35,3.07,1.95,0.27,0.65,1.02\r\nW.Lutz,62,61.44,3.03,1.67,0.26,0.56,1.01\r\nC.Smyth,22,21.45,3.08,1.65,0.26,0.55,1.03\r\nM.Wright,9,8.47,3.19,1.59,0.26,0.53,1.06\r\nC.Santos,64,63.72,3.01,0.83,0.23,0.28,1.00\r\nB.Sauls,9,8.73,3.09,0.80,0.23,0.27,1.03\r\nG.Gano,18,17.82,3.03,0.55,0.22,0.18,1.01\r\nZ.Gonzalez,31,30.85,3.01,0.45,0.22,0.15,1.00\r\nA.Szmyt,45,45.11,2.99,-0.33,0.19,-0.11,1.00\r\nJ.Bates,76,76.58,2.98,-1.75,0.14,-0.58,0.99\r\nT.Loop,70,70.70,2.97,-2.11,0.13,-0.70,0.99\r\nL.Havrisik,11,11.91,2.77,-2.73,0.11,-0.91,0.92\r\nJ.Gillan,0,0.97,0.00,-2.91,0.10,-0.97,0.00\r\nM.Gay,43,44.08,2.93,-3.25,0.09,-1.08,0.98\r\nD.Carlson,39,40.71,2.87,-5.13,0.02,-1.71,0.96\r\nM.Prater,61,62.72,2.92,-5.17,0.02,-1.72,0.97\r\nA.Borregales,74,75.92,2.92,-5.76,0.00,-1.92,0.97\r\nC.Ryland,57,58.93,2.90,-5.78,0.00,-1.93,0.97\r\nJ.Moody,30,31.94,2.82,-5.82,0.00,-1.94,0.94\r\nJ.Elliott,58,59.95,2.90,-5.85,0.00,-1.95,0.97\r\nJ.Romo,23,25.05,2.75,-6.14,-0.01,-2.05,0.92\r\nB.McManus,55,57.26,2.88,-6.78,-0.03,-2.26,0.96\r\nB.Grupe,48,50.49,2.85,-7.48,-0.06,-2.49,0.95\r\nR.Fitzgerald,49,51.50,2.85,-7.49,-0.06,-2.50,0.95\r\nY.Koo,19,21.56,2.64,-7.68,-0.07,-2.56,0.88\r\nJ.McAtamney,11,13.61,2.43,-7.82,-0.07,-2.61,0.81\r\nH.Butker,60,63.01,2.86,-9.04,-0.11,-3.01,0.95\r\nM.Badgley,31,34.57,2.69,-10.70,-0.17,-3.57,0.90\r\nJ.Karty,33,38.72,2.56,-17.16,-0.39,-5.72,0.85";
+    let sortColumn = null;
+    let sortAsc = true;
+
+    const tableHeader = document.getElementById('table-header');
+    const tableBody = document.getElementById('table-body');
+    const downloadCsvBtn = document.getElementById('download-csv-btn');
+
+    function parseHeaderLabel(label) {
+        const match = label.match(/^(.*)\((.*)\)$/);
+        return match ? { main: match[1].trim(), tooltip: match[2].trim(), hasTooltip: true } : { main: label, tooltip: "", hasTooltip: false };
+    }
+
+    function sortData(header) {
+        if (sortColumn === header) sortAsc = !sortAsc;
+        else { sortColumn = header; sortAsc = true; }
+        
+        tableData.sort((a, b) => {
+            let valA = (a[header] || "").toString().trim();
+            let valB = (b[header] || "").toString().trim();
+            const numA = parseFloat(valA.replace(/[^0-9.-]+/g, ""));
+            const numB = parseFloat(valB.replace(/[^0-9.-]+/g, ""));
+            let comp = isNaN(numA) || isNaN(numB) ? valA.localeCompare(valB, undefined, {numeric: true}) : numA - numB;
+            return sortAsc ? comp : -comp;
+        });
+        renderTableBody();
+        renderHeader();
+    }
+
+    function renderHeader() {
+        if (!tableHeader) return;
+        tableHeader.innerHTML = '';
+        headers.forEach(header => {
+            const parsed = parseHeaderLabel(header);
+            const th = document.createElement('th');
+            th.className = "px-6 py-5 font-bold text-sm text-slate-700 cursor-pointer hover:bg-slate-200 transition-colors select-none whitespace-nowrap border-b border-slate-200";
+            
+            const contentWrapper = document.createElement('div');
+            contentWrapper.className = "flex items-center gap-2";
+            
+            if (parsed.hasTooltip) {
+                const tooltipContainer = document.createElement('span');
+                tooltipContainer.className = "tooltip-container";
+                tooltipContainer.innerHTML = `${parsed.main}<span class="tooltip-text">${parsed.tooltip}</span>`;
+                contentWrapper.appendChild(tooltipContainer);
+            } else {
+                const labelSpan = document.createElement('span');
+                labelSpan.textContent = parsed.main;
+                contentWrapper.appendChild(labelSpan);
+            }
+
+            if (sortColumn === header) {
+                const icon = document.createElement('span');
+                icon.className = "text-blue-600 text-xs";
+                icon.innerHTML = sortAsc ? ' ↑' : ' ↓';
+                contentWrapper.appendChild(icon);
+            }
+            th.appendChild(contentWrapper);
+            th.onclick = () => sortData(header);
+            tableHeader.appendChild(th);
+        });
+    }
+
+    function renderTableBody() {
+        if (!tableBody) return;
+        tableBody.innerHTML = '';
+        tableData.forEach(row => {
+            const tr = document.createElement('tr');
+            tr.className = "hover:bg-slate-50 transition-colors";
+            headers.forEach(header => {
+                const td = document.createElement('td');
+                td.className = "px-6 py-4 text-sm text-slate-600";
+                td.textContent = row[header];
+                tr.appendChild(td);
+            });
+            tableBody.appendChild(tr);
+        });
+    }
+
+    if (downloadCsvBtn) {
+        downloadCsvBtn.onclick = () => {
+            const blob = new Blob([originalCsvContent], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url; a.download = 'data.csv'; a.click();
+            URL.revokeObjectURL(url);
+        };
+    }
+
+    // Run initial render after page load
+    window.addEventListener('DOMContentLoaded', () => {
+        renderHeader();
+        renderTableBody();
+    });
+    
+    // Safety check if DOMContentLoaded already fired
+    if (document.readyState === 'complete' || document.readyState === 'interactive') {
+        renderHeader();
+        renderTableBody();
+    }
+</script>
